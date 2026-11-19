@@ -9,7 +9,6 @@ from urllib.parse import urlsplit
 import psycopg2
 import redis
 from flask import Flask, jsonify, redirect, request, send_from_directory
-from flask_cors import CORS
 from psycopg2 import errors
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -18,10 +17,6 @@ FRONTEND = os.path.join(ROOT, "frontend")
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.logger.setLevel(logging.INFO)
-origins = [v.strip() for v in os.getenv("FRONTEND_URL", "").split(",") if v.strip()]
-if origins:
-    CORS(app, resources={r"/shorten": {"origins": origins}, r"/api/*": {"origins": origins}})
-
 ALPHABET = string.digits + string.ascii_lowercase + string.ascii_uppercase
 ALIAS_RE = re.compile(r"^[A-Za-z0-9_-]{1,30}$")
 RESERVED = {"", "api", "health", "shorten", "favicon.ico", "robots.txt", "static"}

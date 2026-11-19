@@ -1,2 +1,2 @@
-// Empty means use the same origin; set this only for separately hosted frontend builds.
+// Frontend and API share the Flask origin.
 window.API_BASE_URL = window.API_BASE_URL || "";
