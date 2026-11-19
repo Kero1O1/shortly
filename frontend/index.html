@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shortly — URL shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,680&family=Outfit:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="masthead">
+        <p class="eyebrow">Shortly · URL shortener</p>
+        <h1>Fold a long link into something you can share.</h1>
+        <p class="lede">
+          Paste a destination. The short link redirects through the API, and the original stays stored.
+        </p>
+      </header>
+
+      <form id="shorten-form" class="card">
+        <label for="long-url">Long URL</label>
+        <div class="row">
+          <input
+            id="long-url"
+            name="url"
+            type="url"
+            inputmode="url"
+            autocomplete="url"
+            placeholder="https://example.com/a-very-long-path"
+            required
+          />
+          <button id="shorten-button" type="submit">Shorten</button>
+        </div>
+        <label for="custom-alias">Custom alias (optional)</label>
+        <div class="row">
+          <input id="custom-alias" name="custom_alias" type="text" maxlength="30" pattern="[A-Za-z0-9_-]{1,30}" placeholder="kerolos" autocomplete="off" />
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </form>
+
+      <section id="result" class="card result" hidden>
+        <p class="label">Short URL</p>
+        <div class="row">
+          <a id="short-link" href="" target="_blank" rel="noopener"></a>
+          <button id="copy-button" type="button">Copy</button>
+        </div>
+      </section>
+
+      <section class="history" aria-labelledby="history-heading">
+        <div class="history-head">
+          <h2 id="history-heading">On this browser</h2>
+          <button id="clear-history" type="button" class="text-button">Clear</button>
+        </div>
+        <ul id="history-list" class="history-list"></ul>
+        <p id="history-empty" class="empty">Links you shorten here are kept in this browser only.</p>
+      </section>
+    </main>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

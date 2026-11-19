@@ -1,0 +1,7 @@
+[build]
+  base = "frontend"
+  command = "node write-config.js"
+  publish = "."
+
+[build.environment]
+  NODE_VERSION = "20"
