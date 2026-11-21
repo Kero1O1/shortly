@@ -12,7 +12,7 @@ Shortly turns long URLs into short, shareable links. Visitors can use an automat
 | Redis | Temporary cache for alias lookups |
 | HTML, CSS, and JavaScript | Browser interface |
 | Docker and Docker Compose | Container image and local development environment |
-| Railway | Planned production hosting |
+| Railway | Production hosting |
 | Git and GitHub | Version control and source hosting |
 
 ## Architecture and project evolution
@@ -23,11 +23,11 @@ Shortly was first developed and run locally. Docker Compose starts three service
 
 When a user submits a URL, Flask validates it and stores the destination and alias in PostgreSQL. The application caches the mapping in Redis. On a short-link visit, Flask checks Redis first and queries PostgreSQL on a cache miss or if Redis is unavailable. PostgreSQL remains the source of truth.
 
-### Planned production deployment
+### Production deployment
 
-The production setup is being simplified to use Railway for the backend, PostgreSQL, and Redis. Earlier Netlify and Render configuration files were removed when consolidating the plan to Railway; neither is a current hosting target. No Railway deployment has been completed yet.
+Production runs on Railway with three services in one project: the Shortly backend, PostgreSQL, and Redis. Earlier Netlify and Render configuration files were removed when consolidating onto Railway; neither is a current hosting target.
 
-Railway will build the repository with the root `Dockerfile`. Gunicorn will serve the Flask application, which also serves the frontend and handles the API and short-link redirects on the same domain. This keeps deployment to one web service, allows same-origin API requests, and avoids needing CORS configuration for the current architecture.
+Railway builds the repository with the root `Dockerfile`. Gunicorn serves the Flask application, which also serves the frontend and handles the API and short-link redirects on the same domain. This keeps deployment to one web service, allows same-origin API requests, and avoids needing CORS configuration for the current architecture.
 
 ```mermaid
 flowchart LR
@@ -102,24 +102,23 @@ PostgreSQL data is stored in the named `postgres_data` volume and is preserved w
 | --- | --- |
 | `DATABASE_URL` | PostgreSQL connection URL used by Railway. |
 | `REDIS_URL` | Redis connection URL used by Railway. |
-| `PUBLIC_BASE_URL` | Public origin used to construct short links. Set this to the confirmed Railway backend domain in production. Compose sets it to `http://localhost:5000` locally. |
+| `PUBLIC_BASE_URL` | Public origin used to construct short links. `https://shortly-production-9ce7640d.up.railway.app` in production; Compose sets it to `http://localhost:5000` locally. |
 | `PORT` | HTTP port. Railway supplies this in production; the app defaults to `5000` for local use. |
 | `FRONTEND_URL` | Not used by the current application. The frontend and backend share one origin, so a separate frontend origin and CORS setting are not needed. |
 
 Railway provides PostgreSQL and Redis connection values through service variables. `.env.example` is a local configuration example; Compose supplies its own local service configuration and does not load that file. Never put real connection strings or credentials in the example file. The current application does not use `FRONTEND_URL` because the frontend and API share one origin.
 
-## Railway deployment plan
+## Railway deployment
 
-Deployment is planned, not live. At a high level:
+Shortly is live on Railway at <https://shortly-production-9ce7640d.up.railway.app>. One Railway project holds three services:
 
-1. Create a Railway project and add PostgreSQL and Redis services.
-2. Connect the Shortly GitHub repository as a web service and build from the repository root using `Dockerfile`.
-3. Configure `DATABASE_URL`, `REDIS_URL`, and `PUBLIC_BASE_URL` for the backend. Railway supplies `PORT`.
-4. Generate a public domain for the backend in Railway. Use only the domain Railway confirms as available; no production domain is confirmed yet.
-5. Set `PUBLIC_BASE_URL` to that HTTPS domain and deploy.
-6. Open the site and `/health`, then create automatic and custom links and verify their redirects.
+1. PostgreSQL — permanent storage.
+2. Redis — alias cache.
+3. The Shortly backend — connected to the GitHub repository and built from the repository root with `Dockerfile`.
 
-For detailed setup and manual redeployment steps, see [DEPLOYMENT.md](DEPLOYMENT.md).
+The backend service is configured with `DATABASE_URL`, `REDIS_URL`, and `PUBLIC_BASE_URL`; Railway supplies `PORT`. `PUBLIC_BASE_URL` is set to that public HTTPS domain, so returned short links use it rather than the request host.
+
+To ship a change, push to GitHub and trigger a manual redeploy of the backend service in Railway. Automatic deployment is not configured. For the detailed service configuration and redeployment steps, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Future ideas
 

@@ -12,21 +12,21 @@ Open http://localhost:5000. Flask serves the frontend, API, redirects, and `/hea
 
 ## Railway services
 
-Create one Railway project with three services:
+Production runs in one Railway project with three services:
 
-1. PostgreSQL.
-2. Redis.
+1. PostgreSQL — permanent storage.
+2. Redis — alias cache.
 3. Shortly backend, connected to this GitHub repository.
 
-Set the backend service's build context to the repository root so Railway uses the root `Dockerfile`. The image installs `app/requirements.txt`, includes `app/` and `frontend/`, and runs Gunicorn on Railway's supplied `PORT`. The Flask service hosts the website at `/`, the API at `/shorten` (also `/api/shorten`), health status at `/health`, and redirects at `/<alias>`.
+The backend service builds from the repository root so Railway uses the root `Dockerfile`. The image installs `app/requirements.txt`, includes `app/` and `frontend/`, and runs Gunicorn on Railway's supplied `PORT`. The Flask service hosts the website at `/`, the API at `/shorten` (also `/api/shorten`), health status at `/health`, and redirects at `/<alias>`.
 
-In the backend service's Variables settings, configure:
+The backend service's variables are:
 
 | Variable | Value | Required |
 | --- | --- | --- |
 | `DATABASE_URL` | Railway PostgreSQL service reference / connection URL | Yes |
 | `REDIS_URL` | Railway Redis service reference / connection URL | Recommended; PostgreSQL is used if Redis is unavailable |
-| `PUBLIC_BASE_URL` | Confirmed HTTPS public origin of the Shortly backend | Yes |
+| `PUBLIC_BASE_URL` | `https://shortly-production-9ce7640d.up.railway.app` | Yes |
 | `PGSSLMODE` | `require` if the PostgreSQL provider requires SSL mode override | Optional |
 | `PORT` | Supplied by Railway | Railway managed |
 
@@ -34,19 +34,19 @@ In the backend service's Variables settings, configure:
 
 ## Public domain
 
-Generate a public domain for the backend service in Railway. The requested `https://shortly.up.railway.app` is not confirmed until Railway reports it available. If that name is unavailable, use the domain Railway assigns. Set `PUBLIC_BASE_URL` to the confirmed `https://` origin and redeploy the backend. Flask uses this value when returning each complete short URL; the frontend uses the returned URL as-is.
+The backend service is served at `https://shortly-production-9ce7640d.up.railway.app`, and `PUBLIC_BASE_URL` is set to it. Flask uses this value when returning each complete short URL; the frontend uses the returned URL as-is. Changing the domain means updating `PUBLIC_BASE_URL` and redeploying the backend.
 
 The frontend and API share the same origin, so no separate frontend service or CORS configuration is needed.
 
 ## Deploy and redeploy manually
 
-Connect the Railway backend service to the repository and use Railway's manual deployment controls to deploy the current GitHub revision. Later, push changes to GitHub yourself, then trigger a manual redeploy in Railway. This repository does not configure automatic deployment. Changing the public domain requires updating `PUBLIC_BASE_URL` and redeploying.
+The backend service is connected to this repository, but a push to GitHub does not deploy by itself. To ship a change, push to GitHub, then trigger a manual redeploy of the backend service in Railway. This repository does not configure automatic deployment.
 
 The backend applies an additive, idempotent database change on first use to add the unique alias field. Existing rows receive their former base62 paths, preserving existing links. It does not drop tables or records.
 
-## Basic production verification
+## Production verification
 
-After deployment:
+To check a deployment:
 
 1. Open the backend domain and confirm the Shortly page loads.
 2. Open `/health` and confirm it returns `{"status":"healthy"}`.
