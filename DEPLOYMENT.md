@@ -36,6 +36,8 @@ The backend service's variables are:
 
 The backend service is served at `https://shortly-production-9ce7640d.up.railway.app`, and `PUBLIC_BASE_URL` is set to it. Flask uses this value when returning each complete short URL; the frontend uses the returned URL as-is. Changing the domain means updating `PUBLIC_BASE_URL` and redeploying the backend.
 
+In Railway, `PUBLIC_BASE_URL` should contain only the backend's public origin, for example `https://shortly-production-9ce7640d.up.railway.app`. Do not append the hostname again as a path segment. A real path prefix is supported when intentionally used.
+
 The frontend and API share the same origin, so no separate frontend service or CORS configuration is needed.
 
 ## Deploy and redeploy manually

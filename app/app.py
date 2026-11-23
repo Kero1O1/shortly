@@ -11,6 +11,7 @@ import redis
 from flask import Flask, jsonify, redirect, request, send_from_directory
 from psycopg2 import errors
 from werkzeug.middleware.proxy_fix import ProxyFix
+from url_utils import build_short_url
 
 ROOT = os.path.dirname(os.path.dirname(__file__))
 FRONTEND = os.path.join(ROOT, "frontend")
@@ -161,11 +162,11 @@ def shorten():
     except errors.UniqueViolation:
         return jsonify({"error": "That custom alias is already taken. Choose another."}), 409
     cache_set(alias, data["url"].strip())
-    public_base = os.getenv("PUBLIC_BASE_URL", "").strip().rstrip("/")
+    public_base = os.getenv("PUBLIC_BASE_URL", "").strip()
     if not public_base:
         # Local development fallback only. Production setup must provide PUBLIC_BASE_URL.
-        public_base = request.host_url.rstrip("/")
-    return jsonify({"short_url": f"{public_base}/{alias}", "alias": alias, "short_code": alias}), 201
+        public_base = request.host_url
+    return jsonify({"short_url": build_short_url(public_base, alias), "alias": alias, "short_code": alias}), 201
 
 
 app.add_url_rule("/shorten", "shorten_url", shorten, methods=["POST"])
